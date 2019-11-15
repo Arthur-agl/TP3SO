@@ -30,7 +30,7 @@ int main(int argc, char** argv){
 
     uint addr;
     char rw;
-    uint requestedPage;
+    uint pageID;
 
     // Tratamento dos argumentos
     if(argc < 4){
@@ -78,7 +78,7 @@ int main(int argc, char** argv){
     frameTotal = VIRTUAL_ADDRESS_SIZE - s;
 
     // Montagem da tabela de páginas
-    //PageTable *p = pageTableInit(pageTotal, frameTotal);
+    //PageTable *pt = pageTableInit(pageTotal, frameTotal);
 
     //Leitura do arquivo e gravação das estatísticas
     printf("Arquivo de entrada: %s\n", inputFile);
@@ -109,8 +109,8 @@ int main(int argc, char** argv){
     printf("Executando o simulador de acesso a memoria ... \n");
 
     while(fscanf (f,"%x %c", &addr, &rw) != EOF){
-        requestedPage = addr >> s;
-        //p->requestPage(requestedPage);
+        pageID = addr >> s;
+        //p->requestPage(pt, pageID, rw);
     }
 
     // Imprimir relatório com estatísticas
