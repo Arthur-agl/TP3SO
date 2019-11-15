@@ -32,9 +32,9 @@ typedef struct {
 
 }PageTable;
 
-// Funções básicas de lista circular
+// Inicializaçõa da lista
 PageTable* pageTableInit(uint frameTotal, uint Pagetotal){
-uint i;
+    uint i;
 
     PageTable* tmp = (PageTable*)malloc(sizeof(PageTable));
     tmp->TotalFrameCount = frameTotal;
@@ -71,7 +71,7 @@ void requestPage(PageTable *pt, uint PageID, char mode){
                 pt->frameList[i].pageID = PageID;
             }
             else{ //Substituir uma página baseado no algoritmo escolhido pelo usuário
-                
+
             }
         }
     }
