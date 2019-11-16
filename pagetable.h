@@ -1,80 +1,63 @@
 #include<stdlib.h>
+#include<time.h>
 
 typedef unsigned int uint;
 
 // Para facilitar a implementaação, uma entrada da tabela de página contém os dados necessários
 // para executar todos os algoritmos de substituição requeridos
 
+// Representação de uma página de memória.
+// Para facilitar a implementaação, uma entrada da tabela de página contém os dados necessários para executar todos os algoritmos de substituição requeridos.
 typedef struct {
-    // Estatísticas da página
-    uint totalRead, totalWrite;
 
     // Bit de controle - Second chance
     uint bit2a;
 
     // Controle do tempo de acesso - LRU
-    uint lastAccessTime;
+    time_t lastAccessTime;
 
-    int hasPage;
     uint pageID;
+    PageEntry *next;
 
-}PageEntry;
+} PageEntry;
 
-
-// A tabela de páginas, implementada como um vetor de páginas devido à simplicidade de implementação
+// A tabela de páginas. Esta tabela foi implementada usando uma fila circular, em função da sua simplicidade de implementação e funcionamento com vários algoritmos de substituição.
 typedef struct {
+
+    char substitutionAlgorithm; // Inicial do algoritmo de substituição escolhido pelo usuário
+
+    uint TotalFrameCount; /* O total de páginas(frames) que a tabela possui. É definido na inicialização da tabela. */
+    uint currentFrameCount; /* Quantas páginas existem na tabela atualmente */
+
+    // Último elemento inserido na lista.
+    PageEntry *head;
+
     //Estatisticas
     uint TotalPageFaults;
-    uint TotalFrameCount;
-
-    PageEntry *frameList;
     uint readCount, writeCount;
 
 }PageTable;
 
-// Inicializaçõa da lista
-PageTable* pageTableInit(uint frameTotal, uint Pagetotal){
-    uint i;
+// Inicializa uma tabela de páginas nova.
+PageTable* pageTableInit(uint frameTotal, uint Pagetotal);
 
-    PageTable* tmp = (PageTable*)malloc(sizeof(PageTable));
-    tmp->TotalFrameCount = frameTotal;
+// Insere um item no fim da fila.
+void push(PageTable* pt, uint PageID);
 
-    tmp->frameList = (PageEntry*)malloc(frameTotal*sizeof(PageEntry));
-    
-    for(i=0;i<frameTotal;i++){
-        tmp->frameList[i].totalRead = 0;
-        tmp->frameList[i].totalWrite = 0;
-        tmp->frameList[i].hasPage = 0;
-    }
+// Remove o primeiro item da fila.
+void pop(PageTable* pt, uint PageID);
 
-}
+// Retorna se a tabela de páginas estpa vazia ou não.
+int isEmpty( PageTable* pt );
 
-void requestPage(PageTable *pt, uint PageID, char mode){
-    uint i;
-    //Procura pela página na tabela
-    for(i = 0; i < pt->TotalFrameCount; i++){
-        if(pt->frameList[i].pageID == PageID){ //Página está na tabela
-            //Atualiza estatísticas
-            switch(mode){
-                case 'W':
-                    pt->writeCount++; break;
-                case 'R':
-                    pt->readCount++; break;
-                default: //Se um modo de escrita e leitura não for especificado, considere como leitura
-                    pt->readCount++; break;
-            }
-        }
-        else{
-            //Procura um um lugar vazio para inserir a página, no estilo round-robin
-            if(!pt->frameList[i].hasPage){
-                pt->frameList[i].hasPage = 1;
-                pt->frameList[i].pageID = PageID;
-            }
-            else{ //Substituir uma página baseado no algoritmo escolhido pelo usuário
+// Retorna se a tabela de páginas está cheia ou não.
+int isFull( PageTable* pt );
 
-            }
-        }
-    }
-}
+// Algoritmo de substituição de páginas Second chance. PageID é a nova página que entrará no lugar da substituída
+void replace2a(PageTable* pt, uint PageID);
 
+// Algoritmo de substuição aleatória. PageID é a nova página que entrará no lugar da substituída
+void replaceRandom(PageTable* pt, uint PageID);
 
+// Simula uma requisição de página de memória. retorna 1 se a página foi encontrada e 0 caso contrário
+void requestPage(PageTable* pt, uint PageID, char mode);
