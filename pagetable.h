@@ -8,7 +8,7 @@ typedef unsigned int uint;
 
 // Representação de uma página de memória.
 // Para facilitar a implementaação, uma entrada da tabela de página contém os dados necessários para executar todos os algoritmos de substituição requeridos.
-typedef struct {
+typedef struct{
 
     // Bit de controle - Second chance
     uint bit2a;
@@ -17,9 +17,9 @@ typedef struct {
     time_t lastAccessTime;
 
     uint pageID;
-    PageEntry *next;
+    struct PageEntry *next;
 
-} PageEntry;
+}PageEntry;
 
 // A tabela de páginas. Esta tabela foi implementada usando uma fila circular, em função da sua simplicidade de implementação e funcionamento com vários algoritmos de substituição.
 typedef struct {

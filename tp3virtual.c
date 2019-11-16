@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include"pagetable.h"
 
 #define VIRTUAL_ADDRESS_SIZE 32
 typedef unsigned int uint;
@@ -8,7 +9,7 @@ typedef unsigned int uint;
 unsigned int bitsToDiscard(unsigned int pageSize){
     uint tmp = pageSize;
     uint s = 0;
-    
+
     while (tmp > 1) {
         tmp = tmp >> 1;
         s++;
@@ -34,13 +35,13 @@ int main(int argc, char** argv){
 
     // Tratamento dos argumentos
     if(argc < 4){
-        printf("Numero incorreto de argumentos!\n"); 
+        printf("Numero incorreto de argumentos!\n");
         return -1;
     }
 
     strcpy(substitutionAlgortithm, argv[1]);
 
-    if ( strcmp(substitutionAlgortithm,"lru") != 0 
+    if ( strcmp(substitutionAlgortithm,"lru") != 0
     && strcmp(substitutionAlgortithm,"2a")  != 0
     && strcmp(substitutionAlgortithm,"fifo") != 0
     && strcmp(substitutionAlgortithm,"random") != 0 )

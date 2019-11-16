@@ -1,41 +1,8 @@
 #include <stdlib.h>
 #include <time.h>
-//#include <"pagetable.h">
+#include "pagetable.h"
 
 typedef unsigned int uint;
-
-// Representação de uma página de memória.
-// Para facilitar a implementaação, uma entrada da tabela de página contém os dados necessários para executar todos os algoritmos de substituição requeridos.
-typedef struct {
-
-    // Bit de controle - Second chance
-    uint bit2a;
-
-    // Controle do tempo de acesso - LRU
-    time_t lastAccessTime;
-
-    uint pageID;
-    PageEntry *next;
-
-} PageEntry;
-
-
-// A tabela de páginas. Esta tabela foi implementada usando uma fila circular, em função da sua simplicidade de implementação e funcionamento com vários algoritmos de substituição.
-typedef struct {
-
-    char substitutionAlgorithm; // Inicial do algoritmo de substituição escolhido pelo usuário
-
-    uint TotalFrameCount; /* O total de páginas(frames) que a tabela possui. É definido na inicialização da tabela. */
-    uint currentFrameCount; /* Quantas páginas existem na tabela atualmente */
-
-    // Último elemento inserido na lista.
-    PageEntry *head;
-
-    //Estatisticas
-    uint TotalPageFaults;
-    uint readCount, writeCount;
-
-}PageTable;
 
 // Inicializa uma tabela de páginas nova. A tabela é uma fila circular, onde cada elemento representa uma página de memória.
 PageTable* pageTableInit(uint frameTotal, uint Pagetotal) {
@@ -123,7 +90,7 @@ void pop(PageTable* pt, uint PageID){
     }
 }
 
-// Algoritmo de substituição Second chance. A tabela de páginas é percorrida e cada elemento é marcado como já visitado. 
+// Algoritmo de substituição Second chance. A tabela de páginas é percorrida e cada elemento é marcado como já visitado.
 void replace2a(PageTable* pt, uint PageID){
     PageEntry *tmp = pt->head;
     while(tmp->bit2a){
@@ -161,7 +128,7 @@ void requestPage(PageTable* pt, uint PageID, char mode){
             case '2':
                 replace2a(pt, PageID); break;
             case 'r':
-                replaceRandom(pt, PageID); break;
+                //replaceRandom(pt, PageID); break;
             default:
                 printf("Erro!");
                 exit(1);
