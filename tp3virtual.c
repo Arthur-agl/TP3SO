@@ -79,7 +79,7 @@ int main(int argc, char** argv){
     frameTotal = VIRTUAL_ADDRESS_SIZE - s;
 
     // Montagem da tabela de páginas
-    //PageTable *pt = pageTableInit(pageTotal, frameTotal);
+    PageTable *pt = pageTableInit(pageTotal, frameTotal);
 
     //Leitura do arquivo e gravação das estatísticas
     printf("Arquivo de entrada: %s\n", inputFile);
@@ -111,7 +111,7 @@ int main(int argc, char** argv){
 
     while(fscanf (f,"%x %c", &addr, &rw) != EOF){
         pageID = addr >> s;
-        //p->requestPage(pt, pageID, rw);
+        requestPage(pt, pageID, rw);
     }
 
     // Imprimir relatório com estatísticas
@@ -123,6 +123,7 @@ int main(int argc, char** argv){
 
 
     // Limpeza
+    delete(pt);
     fclose(f);
     return 0;
 }

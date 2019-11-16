@@ -61,3 +61,6 @@ void replaceRandom(PageTable* pt, uint PageID);
 
 // Simula uma requisição de página de memória. retorna 1 se a página foi encontrada e 0 caso contrário
 void requestPage(PageTable* pt, uint PageID, char mode);
+
+// Limpeza
+void delete(PageTable* pt);

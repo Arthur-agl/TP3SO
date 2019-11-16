@@ -135,3 +135,17 @@ void requestPage(PageTable* pt, uint PageID, char mode){
         }
     }
 }
+
+void delete(PageTable* pt){
+    PageEntry *tmp = pt->head, *next;
+  
+    while (tmp->next != pt->head){
+        next = tmp->next; 
+        free(tmp); 
+        tmp = next; 
+    }
+
+   free(pt->head);
+   pt->head = NULL;
+   free(pt);
+}
