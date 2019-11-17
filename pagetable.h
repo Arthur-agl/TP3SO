@@ -29,8 +29,9 @@ typedef struct {
     uint TotalFrameCount; /* O total de páginas(frames) que a tabela possui. É definido na inicialização da tabela. */
     uint currentFrameCount; /* Quantas páginas existem na tabela atualmente */
 
-    // Último elemento inserido na lista.
+    // Para uso no algoritmo first-come-first-serve
     PageEntry *head;
+    uint front, back;
 
     //Estatisticas
     uint TotalPageFaults;
@@ -39,7 +40,7 @@ typedef struct {
 }PageTable;
 
 // Inicializa uma tabela de páginas nova.
-PageTable* pageTableInit(uint frameTotal, uint Pagetotal);
+PageTable* pageTableInit(char substitutionAlgortithm, uint frameTotal, uint Pagetotal);
 
 // Insere um item no fim da fila.
 void push(PageTable* pt, uint PageID);

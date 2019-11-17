@@ -1,12 +1,13 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<math.h>
 #include"pagetable.h"
 
 #define VIRTUAL_ADDRESS_SIZE 32
 typedef unsigned int uint;
 
-unsigned int bitsToDiscard(unsigned int pageSize){
+unsigned int bitsToDiscard(uint pageSize){
     uint tmp = pageSize;
     uint s = 0;
 
@@ -26,15 +27,16 @@ int main(int argc, char** argv){
     uint totalPhysicalMem;
 
     uint s; //bits a serem descartados para determinar o número da página
-    uint pageTotal;
-    uint frameTotal;
+    uint pageTotal; //Total de páginas acessíveis por um processo
+    uint frameTotal; //Total de quadros
 
-    uint addr;
-    char rw;
-    uint pageID;
+    uint totalOperations = 0; // Total de operações de leitura/escrita (linhas do arquivo de entrada)
+    uint addr; // Endereço que será lido no arquivo
+    char rw; // Modo de acesso à memória que será lido no arquivo
+    uint pageID; // Página de memória, deduzida
 
-    // Tratamento dos argumentos
-    if(argc < 4){
+    // --- Tratamento dos argumentos
+    if(argc < 5){
         printf("Numero incorreto de argumentos!\n");
         return -1;
     }
@@ -50,8 +52,8 @@ int main(int argc, char** argv){
         return -1;
     }
 
-    pageSize = argv[3];
-    totalPhysicalMem = argv[4];
+    pageSize = atoi(argv[3]); // Tamanho da página, em KB
+    totalPhysicalMem = atoi(argv[4]); // Tamanho da memória física, em KB
 
     if(pageSize < 2 && pageSize > 64){
         printf("O tamanho da pagina deve ser entre 2 e 64 KB, inclusivo.\n");
@@ -63,28 +65,29 @@ int main(int argc, char** argv){
     }
 
     strcpy(inputFile, argv[2]);
-    FILE *f = fopen(inputFile,"r");
+    FILE *f = fopen("compilador.log","r");
     if (f == NULL){
-        printf("Erro ao abrir o arquivo!\n");
+        printf("Erro ao abrir o arquivo %s!\n",inputFile);
         return -1;
     }
 
-    // Bits que serão descartados na hora de calcular a página
-    s = bitsToDiscard(pageSize);
+    // Bits que serão descartados na hora de calcular o ID da página
+    s = bitsToDiscard(pageSize*1024); //o cálculo é feito com o o valor em bytes
 
     // Total de páginas possível
-    pageTotal = totalPhysicalMem / pageSize;
+    pageTotal = 2 << (VIRTUAL_ADDRESS_SIZE - s);
 
-    // Total de frames na tabela de página
-    frameTotal = VIRTUAL_ADDRESS_SIZE - s;
+    // Total de quadros na tabela de páginas. t = KB disponíveis na memória física / tamanho da página, em KB
+    frameTotal = totalPhysicalMem/pageSize;
 
-    // Montagem da tabela de páginas
-    PageTable *pt = pageTableInit(pageTotal, frameTotal);
+    // --- Montagem da tabela de páginas
+    PageTable *pt = pageTableInit(substitutionAlgortithm[0], pageTotal, frameTotal);
 
     //Leitura do arquivo e gravação das estatísticas
     printf("Arquivo de entrada: %s\n", inputFile);
-    printf("Tamanho da memoria: %u KB\n", totalPhysicalMem);
-    printf("Tamanho de pagina: %u KB\n", pageSize);
+    printf("Tamanho da memoria: %d KB\n", totalPhysicalMem);
+    printf("Tamanho de pagina: %d KB\n", pageSize);
+    printf("Tamanho da tabela de paginas: %u quadros\n", frameTotal);
     printf("Tecnica de reposicao escolhida: ");
     switch((char)substitutionAlgortithm[0]){
         case 'l':
@@ -110,12 +113,14 @@ int main(int argc, char** argv){
     printf("Executando o simulador de acesso a memoria ... \n");
 
     while(fscanf (f,"%x %c", &addr, &rw) != EOF){
+        totalOperations++;
         pageID = addr >> s;
-        requestPage(pt, pageID, rw);
+        //requestPage(pt, pageID, rw);
     }
 
     // Imprimir relatório com estatísticas
-    printf("Estatísticas do simulador: \n");
+    printf("Estatisticas do simulador: \n");
+    printf("total de acessos: %u\n", totalOperations);
     printf("Paginas lidas:\n");
     printf("Paginas escritas:\n");
     printf("Total de page faults:\n");
@@ -126,4 +131,5 @@ int main(int argc, char** argv){
     delete(pt);
     fclose(f);
     return 0;
+
 }
