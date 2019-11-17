@@ -29,8 +29,9 @@ typedef struct {
     uint TotalFrameCount; /* O total de páginas(frames) que a tabela possui. É definido na inicialização da tabela. */
     uint currentFrameCount; /* Quantas páginas existem na tabela atualmente */
 
-    // Último elemento inserido na lista.
+    // Para uso no algoritmo first-come-first-serve
     PageEntry *head;
+    uint front, back;
 
     //Estatisticas
     uint TotalPageFaults;
@@ -39,7 +40,7 @@ typedef struct {
 }PageTable;
 
 // Inicializa uma tabela de páginas nova.
-PageTable* pageTableInit(uint frameTotal, uint Pagetotal);
+PageTable* pageTableInit(char substitutionAlgortithm, uint frameTotal, uint Pagetotal);
 
 // Insere um item no fim da fila.
 void push(PageTable* pt, uint PageID);
@@ -53,13 +54,13 @@ int isEmpty( PageTable* pt );
 // Retorna se a tabela de páginas está cheia ou não.
 int isFull( PageTable* pt );
 
-// Algoritmo de substituição de páginas Second chance. PageID é a nova página que entrará no lugar da substituída
-void replace2a(PageTable* pt, uint PageID);
+// Algoritmo de substituição de páginas Second chance.
+void replace2a(PageTable* pt, uint newPageID);
 
-// Algoritmo de substuição aleatória. PageID é a nova página que entrará no lugar da substituída
-void replaceRandom(PageTable* pt, uint PageID);
+// Algoritmo de substuição aleatória.
+void replaceRandom(PageTable* pt, uint newPageID);
 
-// Simula uma requisição de página de memória. retorna 1 se a página foi encontrada e 0 caso contrário
+// Simula uma requisição de página de memória.
 void requestPage(PageTable* pt, uint PageID, char mode);
 
 // Limpeza
