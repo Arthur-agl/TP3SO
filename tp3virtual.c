@@ -81,7 +81,10 @@ int main(int argc, char** argv){
     frameTotal = totalPhysicalMem/pageSize;
 
     // --- Montagem da tabela de páginas
-    PageTable *pt = pageTableInit(substitutionAlgortithm[0], pageTotal, frameTotal);
+    PageTable *pt = pageTableInit(substitutionAlgortithm[0], pageTotal);
+
+    // --- Montagem da tabela de quadros
+    FrameTable *ft = frameTableInit(frameTotal);
 
     //Leitura do arquivo e gravação das estatísticas
     printf("Arquivo de entrada: %s\n", inputFile);
