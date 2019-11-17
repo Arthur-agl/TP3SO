@@ -37,7 +37,7 @@ typedef struct
     PageEntry *pageList;
 
     // Fila auxiliar para o uso do FIFO
-    TipoLista ListaFIFO;
+    TipoLista Fila;
 
     //Estatisticas
     uint TotalPageFaults;
@@ -48,6 +48,7 @@ typedef struct
 typedef struct
 {
     uint ocupado;
+    int pageID;
 
 } Frame;
 

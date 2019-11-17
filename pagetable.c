@@ -20,19 +20,21 @@ PageTable *pageTableInit(char substitutionAlgorithm, uint PageTotal)
     for (int i = 0; i < PageTotal; i++)
     {
         tmp->pageList[i].valid = 0;
+        tmp->pageList[i].accessed = 0;
         tmp->pageList[i].frameID = -1;
     }
 
-    //Se o algoritmo de reposiçao é o FIFO, incializa a lista encadeada
+    //Se o algoritmo de reposiçao é o FIFO, incializa a fila
     if (substitutionAlgorithm == 'f')
     {
-        FLVazia(&tmp->ListaFIFO);
+        FLVazia(&tmp->Fila);
     }
 
     return tmp;
 }
 
 // Inicializa uma tabela de quadros. Cada entrada da tabela é um quadro localizado na memória física
+// Cada entrada da tabela é um Frame, que contem a pagina carregada nele e um bit pra verificar se está ocupado
 FrameTable *frameTableInit(uint totalFrames)
 {
     FrameTable *tmp = (FrameTable *)malloc(sizeof(FrameTable));
@@ -42,6 +44,7 @@ FrameTable *frameTableInit(uint totalFrames)
     for (int i = 0; i < totalFrames; i++)
     {
         tmp->frameList[i].ocupado = 0;
+        tmp->frameList[i].pageID = -1;
     }
 
     return tmp;
@@ -64,29 +67,66 @@ void updateStats(PageTable *pt, char mode)
     }
 }
 
-void replace(PageTable *pt, uint PageID, PageEntry vitima)
+//Retorna o quadro da pagina vitima e atualiza tabela de paginas
+uint replace(uint PageID, PageEntry vitima)
 {
     vitima.valid = 0;
-    pt->pageList[PageID].frameID = vitima.frameID;
+    uint victim_frame = vitima.frameID;
     vitima.frameID = -1;
-    pt->pageList[PageID].valid = 1;
-    pt->pageList[PageID].accessed = 1;
-    pt->pageList[PageID].bit2a = 1;
+    return victim_frame;
 }
 
-void replaceFIFO(PageTable *pt, uint PageID)
+uint replaceFIFO(PageTable *pt, uint PageID)
 {
-    uint vitimaID = Dequeue(&pt->ListaFIFO);
+    //Primeiro elemento da lista
+    uint vitimaID = Dequeue(&pt->Fila);
     PageEntry vitima = pt->pageList[vitimaID];
-    replace(pt, PageID, vitima);
+    return replace(PageID, vitima);
 }
 
-void replaceRandom(PageTable *pt, uint PageID)
+uint replaceRandom(PageTable *pt, FrameTable *ft, uint PageID)
 {
-    uint vitimaID = rand() % pt->TotalPages;
-    PageEntry vitima = pt->pageList[vitimaID];
-    replace(pt, PageID, vitima);
+    //Escolhe um quadro aleatorio para ser substituído
+    uint vitimaFrame = rand() % ft->totalFrames;
+
+    //Obtem a pagina a qual aquele quadro se refere
+    uint vitimaPage = ft->frameList[vitimaFrame].pageID;
+    PageEntry vitima = pt->pageList[vitimaPage];
+
+    return replace(PageID, vitima);
 }
+
+uint replaceLru(PageTable *pt, FrameTable *ft, uint PageID)
+{
+    int achou = 0;
+    PageEntry vitima = pt->pageList[0];
+    Frame current_frame;
+    int current_page;
+
+    //Procura entre as paginas alocadas em quadros
+    for(int i = 0; i < ft->totalFrames; i++)
+    {
+        //Quadro atual
+        current_frame = ft->frameList[i];
+
+        //Pagina atual a qual o quadro atual se refere
+        current_page = current_frame.pageID;
+
+        //Verifica se a pagina atual foi acessada recentemente
+        if(pt->pageList[current_page].accessed == 0 && !achou)
+        {
+            //Se não foi, ela é a vítima
+            vitima = pt->pageList[current_page];
+            achou = 1;
+        }
+
+        //Continua resetando os bits de acesso recente
+        pt->pageList[current_page].accessed = 0;
+    }
+
+    return replace(PageID, vitima);
+}
+
 
 // Carrega uma pagina no quadro indicado e atualiza tabela de paginas.
 void carregaPagina(PageTable *pt, FrameTable *ft, uint PageID, char mode)
@@ -109,11 +149,15 @@ void carregaPagina(PageTable *pt, FrameTable *ft, uint PageID, char mode)
         switch (pt->substitutionAlgorithm)
         {
         case 'r':
-            replaceRandom(pt, PageID);
+            frameID = replaceRandom(pt, ft, PageID);
             break;
 
         case 'f':
-            replaceFIFO(pt, PageID);
+            frameID = replaceFIFO(pt, PageID);
+            break;
+
+        case 'l':
+            frameID = replaceLru(pt, ft, PageID);
             break;
 
         default:
@@ -123,17 +167,20 @@ void carregaPagina(PageTable *pt, FrameTable *ft, uint PageID, char mode)
         return;
     }
 
+    //Pagina é alocada no quadro frameID
     pt->pageList[PageID].frameID = frameID;
+    //frameID guarda a pagina que está alocada nele
+    ft->frameList[frameID].pageID = PageID;
     pt->pageList[PageID].valid = 1;
     pt->pageList[PageID].accessed = 1;
     pt->pageList[PageID].bit2a = 1;
 
-    // Se o algoritmo é FIFO, adiciona o id da nova pagina à lista encadeada
+    // Se o algoritmo é FIFO, adiciona o id da nova pagina à fila
     if (pt->substitutionAlgorithm == 'f')
     {
         TipoItem x;
         x.pageID = PageID;
-        Insere(x, &pt->ListaFIFO);
+        Insere(x, &pt->Fila);
     }
 }
 
@@ -155,22 +202,6 @@ void carregaPagina(PageTable *pt, FrameTable *ft, uint PageID, char mode)
     goto rep;
 }*/
 
-/*void lruReplace(PageTable* pt, unit PageID)
-{
-    achou = False
-    vitima = PageTable[0]
-    for(pagina: PageTable)
-    {
-        if(pagina->usado == 0 && !achou)
-        {
-            vitima = pagina
-            achou = True
-        }
-        pagina->usado = 0
-    }
-    replace(pt, PageID, vitima) 
-}
-*/
 // Simula uma requisição de página de memória. retorna 1 se a página foi encontrada e 0 caso contrário
 void acessaPagina(PageTable *pt, FrameTable *ft, uint PageID, char mode)
 {
@@ -178,6 +209,7 @@ void acessaPagina(PageTable *pt, FrameTable *ft, uint PageID, char mode)
     if (pt->pageList[PageID].valid)
     {
         updateStats(pt, mode);
+        pt->pageList[PageID].accessed = 1;
         return;
     }
 
