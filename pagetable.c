@@ -100,6 +100,35 @@ void replace2a(PageTable* pt, uint PageID){
     pop(pt, tmp->pageID);
 }
 
+/*void replace(PageTable* pt, uint PageID, Pagina vitima)
+{
+    vitima->bit = invalido
+    pt[PageID] = vitima-frame
+    vitima->frame = 0
+}
+
+/*void fifoReplace(PageTable* pt, uint PageID)
+{
+    vitima = selecionaPrimeiraPagina()
+    replpace(pt, PageID, vitima)
+}*/
+
+/*void lruReplace(PageTable* pt, unit PageID)
+{
+    achou = False
+    vitima = PageTable[0]
+    for(pagina: PageTable)
+    {
+        if(pagina->usado == 0 && !achou)
+        {
+            vitima = pagina
+            achou = True
+        }
+        pagina->usado = 0
+    }
+    replace(pt, PageID, vitima) 
+}
+*/
 // Simula uma requisição de página de memória. retorna 1 se a página foi encontrada e 0 caso contrário
 void requestPage(PageTable* pt, uint PageID, char mode){
     PageEntry *tmp = pt->head;
