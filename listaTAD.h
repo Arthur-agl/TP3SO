@@ -17,3 +17,9 @@ typedef struct TipoCelula {
 typedef struct {
     TipoApontador Primeiro, Ultimo;
 } TipoLista;
+
+void FLVazia(TipoLista *Lista);
+
+void Insere(TipoItem x, TipoLista *Lista);
+
+uint Dequeue(TipoLista *Lista);

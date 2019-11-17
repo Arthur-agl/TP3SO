@@ -118,7 +118,7 @@ int main(int argc, char** argv){
     while(fscanf (f,"%x %c", &addr, &rw) != EOF){
         totalOperations++;
         pageID = addr >> s;
-        requestPage(pt, pageID, rw);
+        acessaPagina(pt, ft, pageID, rw);
     }
 
     // Imprimir relatório com estatísticas
