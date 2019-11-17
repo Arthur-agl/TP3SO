@@ -46,7 +46,8 @@ void push(PageTable* pt, uint PageID) {
     pt->head[i].bit2a = 1;
     time(&(pt->head[i].lastAccessTime));
 
-    pt->front = (++pt->front) % pt->TotalFrameCount;
+    pt->front +=1;
+    pt->front %= pt->TotalFrameCount;
     pt->currentFrameCount++; // atualiza o total de quadros ocupados
 
 }
@@ -79,9 +80,9 @@ void replaceRandom(PageTable* pt, uint newPageID){
 
 // Simula uma requisição de página de memória. retorna 1 se a página foi encontrada e 0 caso contrário
 void requestPage(PageTable* pt, uint PageID, char mode){
-    PageEntry *tmp = pt->head;
-    do{
-        if(tmp->pageID == PageID){ // A página está na tabela
+    uint i;
+    for(i=0; i < pt->currentFrameCount; i++){
+        if(pt->head[i].pageID == PageID){ // A página está na tabela
             switch(mode){
                 case 'W':
                     pt->writeCount++; break; //Simula a escrita de dados na página
@@ -92,37 +93,28 @@ void requestPage(PageTable* pt, uint PageID, char mode){
             }
             return;
         }
-        tmp = tmp->next;
-    }while(tmp != pt->head);
+    }
 
     // A página não está na tabela
-    pt->TotalPageFaults++;
+        pt->TotalPageFaults++; // Simula um pageFault
 
-    if(!isFull(pt)){ // Insere a nova página num espaço vazio da tabela
-        push(pt, PageID);
-    }else{ // Chama um algoritmo de substituição
-        switch(pt->substitutionAlgorithm){
-            case '2':
-                replace2a(pt, PageID); break;
-            case 'r':
-                //replaceRandom(pt, PageID); break;
-            default:
+        if(!isFull(pt)){ // Insere a nova página num espaço vazio da tabela
+            push(pt, PageID);
+        }else{ // Chama um algoritmo de substituição
+            switch(pt->substitutionAlgorithm){
+                case '2':
+                    replace2a(pt, PageID); break;
+                case 'r':
+                    replaceRandom(pt, PageID); break;
+                default:
                 printf("Erro!");
                 exit(1);
+            }
         }
-    }
+        return;
 }
 
 void delete(PageTable* pt){
-    PageEntry *tmp = pt->head, *next;
-
-    while (tmp->next != pt->head){
-        next = tmp->next;
-        free(tmp);
-        tmp = next;
-    }
-
-   free(pt->head);
-   pt->head = NULL;
-   free(pt);
+    free(pt->head);
+    free(pt);
 }

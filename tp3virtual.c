@@ -65,12 +65,12 @@ int main(int argc, char** argv){
     }
 
     strcpy(inputFile, argv[2]);
-    FILE *f = fopen("compilador.log","r");
+    FILE *f = fopen(inputFile,"r");
     if (f == NULL){
-        printf("Erro ao abrir o arquivo %s!\n",inputFile);
+        printf("Erro ao abrir o arquivo!\n");
         return -1;
     }
-
+    
     // Bits que serão descartados na hora de calcular o ID da página
     s = bitsToDiscard(pageSize*1024); //o cálculo é feito com o o valor em bytes
 
@@ -115,21 +115,19 @@ int main(int argc, char** argv){
     while(fscanf (f,"%x %c", &addr, &rw) != EOF){
         totalOperations++;
         pageID = addr >> s;
-        //requestPage(pt, pageID, rw);
+        requestPage(pt, pageID, rw);
     }
 
     // Imprimir relatório com estatísticas
     printf("Estatisticas do simulador: \n");
     printf("total de acessos: %u\n", totalOperations);
-    printf("Paginas lidas:\n");
-    printf("Paginas escritas:\n");
-    printf("Total de page faults:\n");
-    printf("Tempo total de simulacao:\n");
+    printf("Paginas lidas: %u\n", pt->readCount);
+    printf("Paginas escritas: %u\n", pt->writeCount);
+    printf("Total de page faults: %u\n", pt->TotalPageFaults);
 
 
     // Limpeza
     delete(pt);
     fclose(f);
     return 0;
-
 }

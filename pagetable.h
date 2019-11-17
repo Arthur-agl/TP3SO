@@ -54,13 +54,13 @@ int isEmpty( PageTable* pt );
 // Retorna se a tabela de páginas está cheia ou não.
 int isFull( PageTable* pt );
 
-// Algoritmo de substituição de páginas Second chance. PageID é a nova página que entrará no lugar da substituída
-void replace2a(PageTable* pt, uint PageID);
+// Algoritmo de substituição de páginas Second chance.
+void replace2a(PageTable* pt, uint newPageID);
 
-// Algoritmo de substuição aleatória. PageID é a nova página que entrará no lugar da substituída
-void replaceRandom(PageTable* pt, uint PageID);
+// Algoritmo de substuição aleatória.
+void replaceRandom(PageTable* pt, uint newPageID);
 
-// Simula uma requisição de página de memória. retorna 1 se a página foi encontrada e 0 caso contrário
+// Simula uma requisição de página de memória.
 void requestPage(PageTable* pt, uint PageID, char mode);
 
 // Limpeza
