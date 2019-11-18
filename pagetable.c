@@ -182,7 +182,6 @@ void carregaPagina(PageTable *pt, FrameTable *ft, uint PageID, char mode)
             printf("Erro: Algoritmo de reposicao nao reconhecido\n");
             break;
         }
-        return;
     }
 
     // A página nova é alocada no quadro frameID
