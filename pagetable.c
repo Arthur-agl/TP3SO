@@ -12,8 +12,8 @@ PageTable *pageTableInit(char substitutionAlgorithm, uint PageTotal)
 {
     PageTable *tmp = (PageTable *)malloc(sizeof(PageTable));
     tmp->substitutionAlgorithm = substitutionAlgorithm;
-    tmp->readCount = 0;
-    tmp->writeCount = 0;
+    tmp->pagesRead = 0;
+    tmp->pagesWritten = 0;
     tmp->TotalPages = PageTotal;
     tmp->pageList = (PageEntry *)malloc((PageTotal) * sizeof(PageEntry));
 
@@ -50,26 +50,15 @@ FrameTable *frameTableInit(uint totalFrames)
     return tmp;
 }
 
-//Atualiza estatisticas
-void updateStats(PageTable *pt, char mode)
-{
-    switch (mode)
-    {
-    case 'W':
-        pt->writeCount++;
-        break; //Simula a escrita de dados na página
-    case 'R':
-        pt->readCount++;
-        break; //Simula a leitura de um dado da página
-    default:   //se nenhum modo de acesso à página for definido, escolher o modo leitura como padrão
-        pt->readCount++;
-        break;
-    }
-}
-
 //Retorna o quadro da pagina vitima e atualiza tabela de paginas
-uint replace(PageEntry *vitima)
+uint replace(PageTable *pt, PageEntry *vitima)
 {
+    // Se a pagina vítima foi utilizada recentemente para escrita, é necessário escrever ela no disco
+    if(vitima->recent_mode == "W")
+    {
+        pt->pagesWritten++;
+    }
+
     vitima->valid = 0;
     uint victim_frame = vitima->frameID;
     vitima->frameID = -1;
@@ -81,7 +70,7 @@ uint replaceFIFO(PageTable *pt)
     //Primeiro elemento da lista
     uint vitimaID = Dequeue(&pt->Fila);
     PageEntry *vitima = &pt->pageList[vitimaID];
-    return replace(vitima);
+    return replace(pt, vitima);
 }
 
 uint replaceRandom(PageTable *pt, FrameTable *ft)
@@ -93,7 +82,7 @@ uint replaceRandom(PageTable *pt, FrameTable *ft)
     uint vitimaPage = ft->frameList[vitimaFrame].pageID;
     PageEntry *vitima = &pt->pageList[vitimaPage];
 
-    return replace(vitima);
+    return replace(pt, vitima);
 }
 
 uint replaceLru(PageTable *pt, FrameTable *ft)
@@ -124,12 +113,12 @@ uint replaceLru(PageTable *pt, FrameTable *ft)
         pt->pageList[current_page].accessed = 0;
     }
 
-    return replace(vitima);
+    return replace(pt, vitima);
 }
 
 
 // Carrega uma pagina no quadro indicado e atualiza tabela de paginas.
-void carregaPagina(PageTable *pt, FrameTable *ft, uint PageID)
+void carregaPagina(PageTable *pt, FrameTable *ft, uint PageID, char mode)
 {
     int frameID = -1;
     for (int i = 0; i < ft->totalFrames; i++)
@@ -171,6 +160,7 @@ void carregaPagina(PageTable *pt, FrameTable *ft, uint PageID)
     pt->pageList[PageID].frameID = frameID;
     //frameID guarda a pagina que está alocada nele
     ft->frameList[frameID].pageID = PageID;
+    pt->pageList[PageID].recent_mode = mode;
     pt->pageList[PageID].valid = 1;
     pt->pageList[PageID].accessed = 1;
     pt->pageList[PageID].bit2a = 1;
@@ -208,17 +198,16 @@ void acessaPagina(PageTable *pt, FrameTable *ft, uint PageID, char mode)
     //Pagina está na memoria
     if (pt->pageList[PageID].valid)
     {
-        updateStats(pt, mode);
         pt->pageList[PageID].accessed = 1;
+        pt->pageList[PageID].recent_mode = mode;
         return;
     }
 
     // A página não está na memória
-    pt->TotalPageFaults++; // Simula um pageFault
+    pt->pagesRead++; // Simula um pageFault
 
     //Carrega pagina em um quadro
-    carregaPagina(pt, ft, PageID);
-    updateStats(pt, mode);
+    carregaPagina(pt, ft, PageID, mode);
     return;
 }
 

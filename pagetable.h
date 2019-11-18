@@ -21,6 +21,10 @@ typedef struct
     // Bit para validade
     uint valid;
 
+    // Modo em que a página foi utilizada mais recentemente
+    char recent_mode;
+
+    // ID do frame em que a página está alocada
     int frameID;
 
 } PageEntry;
@@ -39,9 +43,8 @@ typedef struct
     // Fila auxiliar para o uso do FIFO
     TipoLista Fila;
 
-    //Estatisticas
-    uint TotalPageFaults;
-    uint readCount, writeCount;
+    //Estatisticas (páginas lidas do disco e páginas escritas no disco)
+    uint pagesRead, pagesWritten;
 
 } PageTable;
 

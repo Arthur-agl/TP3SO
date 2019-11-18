@@ -90,11 +90,11 @@ int main(int argc, char** argv){
     printf("Arquivo de entrada: %s\n", inputFile);
     printf("Tamanho da memoria: %d KB\n", totalPhysicalMem);
     printf("Tamanho de pagina: %d KB\n", pageSize);
-    printf("Tamanho da tabela de paginas: %u quadros\n", frameTotal);
+    printf("Tamanho da tabela de frames: %u quadros\n", frameTotal);
     printf("Tecnica de reposicao escolhida: ");
     switch((char)substitutionAlgortithm[0]){
         case 'l':
-            printf("LRU - menos usado recentemente\n");
+            printf("LRU - least recently used\n");
             break;
 
         case '2':
@@ -123,11 +123,9 @@ int main(int argc, char** argv){
 
     // Imprimir relatório com estatísticas
     printf("Estatisticas do simulador: \n");
-    printf("total de acessos: %u\n", totalOperations);
-    printf("Paginas lidas: %u\n", pt->readCount);
-    printf("Paginas escritas: %u\n", pt->writeCount);
-    printf("Total de page faults: %u\n", pt->TotalPageFaults);
-
+    printf("Total de acessos: %u\n", totalOperations);
+    printf("Paginas lidas (page faults): %u\n", pt->pagesRead);
+    printf("Paginas escritas: %u\n", pt->pagesWritten);
 
     // Limpeza
     delete(pt);
