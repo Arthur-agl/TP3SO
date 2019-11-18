@@ -16,32 +16,32 @@ typedef struct
     uint bit2a;
 
     // Controle do tempo de acesso - LRU
-    uint accessed;
+    time_t lastAccessed;
 
     // Bit para validade
     uint valid;
 
-    // Modo em que a página foi utilizada mais recentemente
-    char recent_mode;
+    // Indica de a página está 'suja' e precisa ser escrita no disco
+    int dirty;
 
-    // ID do frame em que a página está alocada
+    // ID do quadro em que a página está alocada
     int frameID;
 
 } PageEntry;
 
-// A tabela de páginas. Esta tabela foi implementada usando uma fila circular, em função da sua simplicidade de implementação e funcionamento com vários algoritmos de substituição.
+// A tabela de páginas.
 typedef struct
 {
 
-    char substitutionAlgorithm; // Inicial do algoritmo de substituição escolhido pelo usuário
+    char substitutionAlgorithm; /* Inicial do algoritmo de substituição escolhido pelo usuário. */
 
     uint TotalPages; /* O total de páginas que a tabela possui. É definido na inicialização da tabela. */
 
     // Lista de Paginas
     PageEntry *pageList;
 
-    // Fila auxiliar para o uso do FIFO
-    TipoLista Fila;
+    // Marcador do primeiro item na fila. Para uso no algoritmo FIFO
+    uint firstInserted;
 
     //Estatisticas (páginas lidas do disco e páginas escritas no disco)
     uint pagesRead, pagesWritten;
@@ -74,3 +74,5 @@ void acessaPagina(PageTable *pt, FrameTable *ft, uint PageID, char mode);
 
 // Limpeza
 void delete (PageTable *pt);
+
+void deleteFt (FrameTable *ft);
