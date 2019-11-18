@@ -6,9 +6,11 @@ typedef unsigned int uint;
 // Para facilitar a implementaação, uma entrada da tabela de página contém os dados necessários
 // para executar todos os algoritmos de substituição requeridos
 
-// Representação de uma página de memória.
+// Representação de um quadro na memória.
 // Para facilitar a implementaação, uma entrada da tabela de página contém os dados necessários para executar todos os algoritmos de substituição requeridos.
 typedef struct{
+    // Identificador
+    uint pageID;
 
     // Bit de controle - Second chance
     uint bit2a;
@@ -16,12 +18,15 @@ typedef struct{
     // Controle do tempo de acesso - LRU
     time_t lastAccessTime;
 
-    uint pageID;
-    struct PageEntry *next;
+    // Dirty bit - indica se uma escrita na memória será necessária quando a página sair da tabela de quadros
+    int dirty;
+
+    // Para uso no algoritmo FIFO - índice do primeiro elemento que foi inserido na tabela
+    uint first;
 
 }PageEntry;
 
-// A tabela de páginas. Esta tabela foi implementada usando uma fila circular, em função da sua simplicidade de implementação e funcionamento com vários algoritmos de substituição.
+// A tabela de páginas. Esta tabela foi implementada usando um vetor, em função da sua simplicidade de implementação e funcionamento com vários algoritmos de substituição.
 typedef struct {
 
     char substitutionAlgorithm; // Inicial do algoritmo de substituição escolhido pelo usuário
@@ -31,7 +36,6 @@ typedef struct {
 
     // Para uso no algoritmo first-come-first-serve
     PageEntry *head;
-    uint front, back;
 
     //Estatisticas
     uint TotalPageFaults;
@@ -41,24 +45,6 @@ typedef struct {
 
 // Inicializa uma tabela de páginas nova.
 PageTable* pageTableInit(char substitutionAlgortithm, uint frameTotal, uint Pagetotal);
-
-// Insere um item no fim da fila.
-void push(PageTable* pt, uint PageID);
-
-// Remove o primeiro item da fila.
-void pop(PageTable* pt, uint PageID);
-
-// Retorna se a tabela de páginas estpa vazia ou não.
-int isEmpty( PageTable* pt );
-
-// Retorna se a tabela de páginas está cheia ou não.
-int isFull( PageTable* pt );
-
-// Algoritmo de substituição de páginas Second chance.
-void replace2a(PageTable* pt, uint newPageID);
-
-// Algoritmo de substuição aleatória.
-void replaceRandom(PageTable* pt, uint newPageID);
 
 // Simula uma requisição de página de memória.
 void requestPage(PageTable* pt, uint PageID, char mode);
