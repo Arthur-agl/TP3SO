@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <time.h>
-#include "listaTAD.h"
 
 typedef unsigned int uint;
 

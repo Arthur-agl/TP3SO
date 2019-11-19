@@ -58,3 +58,9 @@ dkms.conf
 
 #input textfiles
 *.log
+
+#outup file
+tp3virtual
+
+#vscode
+.vscode

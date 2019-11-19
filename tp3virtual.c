@@ -21,8 +21,8 @@ unsigned int bitsToDiscard(uint pageSize){
 
 int main(int argc, char** argv){
     // Variáveis de entrada da linha de comando
-    char* substitutionAlgortithm[10];
-    char* inputFile[50];
+    char substitutionAlgortithm[10];
+    char inputFile[50];
     uint pageSize;
     uint totalPhysicalMem;
 
