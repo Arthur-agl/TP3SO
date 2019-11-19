@@ -70,7 +70,7 @@ int main(int argc, char** argv){
         printf("Erro ao abrir o arquivo!\n");
         return -1;
     }
-    
+
     // Bits que serão descartados na hora de calcular o ID da página
     s = bitsToDiscard(pageSize*1024); //o cálculo é feito com o o valor em bytes
 
@@ -126,6 +126,8 @@ int main(int argc, char** argv){
     printf("Total de acessos: %u\n", totalOperations);
     printf("Paginas lidas (page faults): %u\n", pt->pagesRead);
     printf("Paginas escritas: %u\n", pt->pagesWritten);
+
+    printf("%u,", pt->pagesWritten);
 
     // Limpeza
     delete(pt);
